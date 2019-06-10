@@ -84,7 +84,7 @@ def getSongId(song):
         #正则匹配歌曲，获取id
         pattern = re.compile(r'<div cla.*?song_(.*?)" cla.*?b title="(.*?)">.*?artist.*?>(.*?)</a>.*?album.*?le="(.*?)">.*?</div>')
         #返回查询结果第一个元组
-        song = pattern.findall(driver.page_source, re.S)[1]
+        song = pattern.findall(driver.page_source, re.S)[0]
 
         #判断歌名和原来的匹配
 
@@ -112,26 +112,33 @@ def getSongsId(songNames):
     return songsId
 
 
+#获取歌词
 def getLrc(songId):
+    lrc = ''
+    tlyric = ''
+
     #参数列表
     payload = {'type': 'lyric', 'id': songId}
 
     #获取返回值
     request = requests.get(cloudApiUrl, params=payload)
 
+    #解析收到的json数据
     jsonDic = json.loads(request.text)
 
-    #获取英文歌词部分
-    lrc = jsonDic['lrc']['lyric']
-
-    #获取中文歌词
-    tlyric = jsonDic['tlyric']['lyric']
+    #判断是否收到歌词（lrc 或 tlyric是否为key)
+    if 'lrc' in jsonDic:
+        #获取英文歌词部分
+        lrc = jsonDic['lrc']['lyric']
+    elif 'tlyric' in jsonDic:
+        #获取中文歌词
+        tlyric = jsonDic['tlyric']['lyric']
 
     return [lrc, tlyric]
 
 
 
-
+#写入lrc['lrc','tlyric']
 def writeLrc(file, lrc):
     file = file.split('.')[0]+'.lrc'
     try:
@@ -160,11 +167,17 @@ def downloadLrc(songNames, songsId, songsList):
         #获取id对应的名字
         songIndex = songsId.index(id)
 
+        #判断lrc有没有 如果lrc['','']就跳过这首歌
+        if not (len(lrc[0]) or len(lrc[1])):
+            print(songNames[songIndex]+'---!!!!--' + 'NO LYRIC!')
+            continue
+
+
         #写入文件
         if writeLrc(songsList[songIndex], lrc):
-            print(songNames[songIndex]+'----->'+ 'success')
+            print(songNames[songIndex]+'----->' + 'success')
         else:
-            print(songNames[songIndex]+'---!!!!--'+ 'FAIL!')
+            print(songNames[songIndex]+'---!!!!--' + 'FAIL!')
 
 
 
@@ -180,15 +193,20 @@ if __name__ == '__main__':
     songsId = []
 
     #遍历目录获取歌名列表
-    songsList, songFiles, songNames= getSongs()
+    songsList, songFiles, songNames = getSongs()
     print(songsList)
 
-    #网易云查询序号
-    songsId = getSongsId(songNames)
+    try:
+        #网易云查询序号
+        songsId = getSongsId(songNames)
 
-    #lrc歌词网站查询获取lrc
-    #写入 歌名.lrc文件
-    downloadLrc(songNames, songsId, songsList)
+        #lrc歌词网站查询获取lrc
+        #写入 歌名.lrc文件
+        downloadLrc(songNames, songsId, songsList)
 
-    #关闭浏览器
-    driver.close()
+    except Exception as e:
+        print(e)
+
+    finally:
+        #关闭浏览器
+        driver.close()
