@@ -21,6 +21,7 @@ driver = webdriver.Chrome(chromeDriver)
 #歌曲所在与保存路径
 localDir = '../'
 
+
 #网易云音乐 歌词下载接口api
 cloudApiUrl = 'https://api.imjad.cn/cloudmusic/'
 
@@ -40,10 +41,10 @@ def getSongs():
         for file in files:
             #匹配文件在 指定结尾后缀列表中
             try:
-                if file.split('.')[1] in endList:
+                if file.rsplit('.', 1)[1] in endList: # rsplit 表示从right开始分割 第1个.
                     songList.append(localPath+file)
                     songFiles.append(file)
-                    songNames.append(file.split('.')[0])
+                    songNames.append(file.rsplit('.', 1)[0])
 
             except Exception as e:
                 print(file)
@@ -140,7 +141,7 @@ def getLrc(songId):
 
 #写入lrc['lrc','tlyric']
 def writeLrc(file, lrc):
-    file = file.split('.')[0]+'.lrc'
+    file = file.rsplit('.', 1)[0]+'.lrc'
     try:
         with open(file, 'wt') as f:
             for l in lrc:
