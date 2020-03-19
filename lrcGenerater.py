@@ -10,23 +10,29 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-#匹配的文件后缀
-endList = ['ncm', 'mp3', 'ape', 'flac']
-
 #chrome 驱动下载
 ## http://chromedriver.storage.googleapis.com/index.html
+#驱动位置
 chromeDriver = './chromedriver'
-driver = webdriver.Chrome(chromeDriver)
-
 #歌曲所在与保存路径
-localDir = '../'
-
+localDir = '/Users/ansel/Music/QQ音乐'
 
 #网易云音乐 歌词下载接口api
 cloudApiUrl = 'https://api.imjad.cn/cloudmusic/'
 
-#获取歌名列表
+#匹配的文件后缀
+endList = ['ncm', 'mp3', 'ape', 'flac']
+
+#设置浏览器驱动
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--headless')
+driver = webdriver.Chrome(chromeDriver, chrome_options=chrome_options)
+
 def getSongs():
+    """
+    获取歌名列表
+    return: 返回歌曲位置列表  歌曲文件名列表 歌曲名列表
+    """
     global localDir
     global endList
     songList = []
@@ -51,8 +57,12 @@ def getSongs():
 
     return songList, songFiles, songNames
 
-#获取一首歌的id
 def getSongId(song):
+    """
+    获取一首歌的id
+    song: 一首歌的名字
+    return: 歌曲id
+    """
     global driver
     id = ''
 
@@ -68,9 +78,6 @@ def getSongId(song):
         inputElement = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "m-search-input"))
         )
-
-
-        # inputElement = driver.find_element_by_id("m-search-input")
 
         #清空输入框
         inputElement.clear()
@@ -94,12 +101,15 @@ def getSongId(song):
     except Exception as e:
         print(e)
 
-
     return id
 
 
-#获取所有歌的id
 def getSongsId(songNames):
+    """
+    获取所有歌的id
+    songNames: 歌曲名字列表
+    return: 歌曲id列表
+    """
     songsId = []
 
     #将歌名传入 getSongId()
@@ -113,8 +123,12 @@ def getSongsId(songNames):
     return songsId
 
 
-#获取歌词
 def getLrc(songId):
+    """
+    获取歌词
+    songId: 歌曲id
+    return: lrc歌词 tlyric中文歌词 
+    """
     lrc = ''
     tlyric = ''
 
@@ -138,9 +152,13 @@ def getLrc(songId):
     return [lrc, tlyric]
 
 
-
-#写入lrc['lrc','tlyric']
 def writeLrc(file, lrc):
+    """
+    写入lrc['lrc','tlyric']
+    file: 保存文件绝对路径
+    lrc: 歌词
+    return: 写入成功True
+    """
     file = file.rsplit('.', 1)[0]+'.lrc'
     try:
         with open(file, 'wt') as f:
@@ -152,8 +170,13 @@ def writeLrc(file, lrc):
         return False
 
 
-#下载lrc并写入文件
 def downloadLrc(songNames, songsId, songsList):
+    """
+    下载lrc并写入文件
+    songNames: 歌曲名字列表
+    songsId: 歌曲id列表
+    songsList: 歌曲列表
+    """
     global cloudApiUrl
 
     #遍历执行每一首歌

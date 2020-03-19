@@ -103,3 +103,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.idea/lrcGenerater.iml
+*.xml
+.idea/workspace.xml
+.idea/
+.idea/lrcGenerater.iml
+.idea/misc.xml
+.idea/workspace.xml
+.idea/misc.xml
+.idea/workspace.xml
+chromedriver
+.idea/lrcGenerater.iml
+.vscode/settings.json
+.idea/lrcGenerater.iml
