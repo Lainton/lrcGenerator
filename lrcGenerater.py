@@ -13,12 +13,13 @@ from selenium.webdriver.support import expected_conditions as EC
 #chrome 驱动下载
 ## http://chromedriver.storage.googleapis.com/index.html
 #驱动位置
-chromeDriver = './chromedriver'
+chromeDriver = '/Users/ansel/PycharmProjects/lrcGenerater/chromedriver'
 #歌曲所在与保存路径
 localDir = '/Users/ansel/Music/QQ音乐'
 
 #网易云音乐 歌词下载接口api
-cloudApiUrl = 'https://api.imjad.cn/cloudmusic/'
+#cloudApiUrl = 'https://api.imjad.cn/cloudmusic/'
+cloudApiUrl = 'https://autumnfish.cn/lyric'
 
 #匹配的文件后缀
 endList = ['ncm', 'mp3', 'ape', 'flac']
@@ -133,7 +134,8 @@ def getLrc(songId):
     tlyric = ''
 
     #参数列表
-    payload = {'type': 'lyric', 'id': songId}
+    #payload = {'type': 'lyric', 'id': songId}
+    payload = {'id': songId}
 
     #获取返回值
     request = requests.get(cloudApiUrl, params=payload)
